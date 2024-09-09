@@ -23,6 +23,7 @@ df['总价'] = df['总价'].str.replace('￥', '')
 df['实收'] = df['实收'].str.replace('￥', '')
 df = df.astype({'实收': 'float64'})
 df = df.astype({'总价': 'float64'})
+df['规格名称'] = df['规格名称'].fillna('异常0本')
 
 # df['实收'] = df['实收'] .astype(int)
 df1 = df.copy()
