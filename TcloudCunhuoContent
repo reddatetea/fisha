@@ -1,0 +1,21 @@
+'''
+计算Tcloud中存货档货中存货含量字典20240917
+'''
+import pandas as pd
+
+
+fname_concent = r"F:\programs\存货.xlsx"
+df = pd.read_excel(fname_concent)
+def addBen(string):
+    pattern = r'(?P<num>\d+)本/件'
+    regexp1 = re.compile(pattern)
+    mat = regexp1.search(string)
+    if mat:
+        content = int(mat.group('num'))
+    else :
+        content  = 0
+    return content
+df['计量单位1'] = df['计量单位'].map(addBen)
+df['计量单位1']
+dic_content = dict(zip(df['存货编码'],df['计量单位1'] ))
+print(dic_content)
