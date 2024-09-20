@@ -862,11 +862,11 @@ pancunbiao = pd.pivot_table(df2, index=[
     'end_jian',
 ], aggfunc=np.sum, fill_value=0)
 
-
+pancunbiao
 
 # #调整入库单汇总
 # 本月是否有入库调整和出库调整
-msg = '本月是否有入库调整和出库调整 '
+msg = '本月是否有入库调整和出库调整 '  # 请将存货文件存放于"F:\programs\",即"F:\programs\存货.xlsx"
 choice = easygui.ccbox(msg, title='请选择"是"或"否"', choices=('是', '否'))
 if choice:
     msg = '文件名必须有关键字"其他入库单"和"其他出库单"'
@@ -920,8 +920,8 @@ if choice:
                                 ('销售出库单明细表' in i) and (os.path.splitext(i)[-1].lower() == '.xlsx') and (
                                         i.startswith('~$') != True)]
 
-        fname_xiaoshou = os.path.join(dir_tiaozheng,xiaoshoumingxi_files[0])
-        df_xiaoshou =  xiaoshoumingxiChuli(fname_xiaoshou, '001库')
+        fname_xiaoshou = xiaoshoumingxi_files[0]
+        df_xiaoshou = xiaoshoumingxiChuli(os.path.join(dir_tiaozheng, fname_xiaoshou), '001库')
 
     except:
         df_xiaoshou = pd.DataFrame(columns=['code', 'stock', 'chuku_ben_xiaoshou', 'chuku_jian_xiaoshou'])
@@ -932,8 +932,8 @@ if choice:
                         ('调拨单' in i) and (os.path.splitext(i)[-1].lower() == '.xlsx') and (
                                 i.startswith('~$') != True)]
 
-        fname_diaobo = os.path.join(dir_tiaozheng,diaobo_files[0])
-        df_diaobo_ruku, df_diaobo_chuku = getDiaobo(fname_diaobo)
+        fname_diaobo = diaobo_files[0]
+        df_diaobo_ruku, df_diaobo_chuku = getDiaobo(os.path.join(dir_tiaozheng, fname_diaobo))
 
 
     except:
@@ -1039,7 +1039,7 @@ result0 = result0.reset_index()
 result0 = result0.fillna(0)
 result0['content'] = result0['code'].map(content_dic)  # 用存货档案中的含量替换
 # 更新含量
-msg = '是否更新含量 '
+msg = '是否更新含量 请将存货文件存放于"F:\programs\",即"F:\programs\存货.xlsx"，也可以自选'  # 请将存货文件存放于"F:\programs\",即"F:\programs\存货.xlsx"
 choice = easygui.ccbox(msg, title='请选择"是"或"否"', choices=('是', '否'))
 if choice:
     try:

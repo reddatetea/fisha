@@ -3,7 +3,6 @@
 将入库分为车间入库，所有入库
 将出库分为所有出库和销售出库
 2024-9-17已考虑入库和出库调整都没有的情况
-2024-9-19调拨单，销售明细表
 '''
 import os
 import datetime
@@ -372,49 +371,6 @@ def danjuChuli(df,store_num):
     df = df.dropna(how='all', axis=1)
     return df
 
-def xiaoshoumingxiChuli(fname, store_num):
-    df = pd.read_excel(fname_xiaoshou, skiprows=6)
-    store_num = '001库'
-    df = df.iloc[:, 1:]
-    # df
-    if store_num == '001库':
-        df.loc[df['仓库编码'] == '002']
-    elif store_num == '002电商库':
-        df = df.loc[df['仓库编码'] == '002']
-    else:
-        df = df.loc[(df['仓库编码'] == '001') | (df['仓库编码'] == '002')]
-    
-    for label, ser in df.items():
-        for num0, x in enumerate(ser):
-            if isinstance(x, str):
-                if '合计' in x:
-                    index = num0
-                    # print(index)
-                    break
-    df = df.iloc[:index]
-    df = df.dropna(how='all', axis=1)
-    df = df[['存货编码','规格型号','数量','数量2']]
-    df.columns = ['code','stock','chuku_ben_xiaoshou','chuku_jian_xiaoshou']
-    return df
-
-def getDiaobo(fname_diaobo):
-    df_diaobo = pd.read_excel(fname_diaobo)
-    df_diaobo = df_diaobo.iloc[:-1]
-    df_diaobo  = df_diaobo[['存货名称','规格型号','调出仓库','调入仓库','数量（本）','数量2（件）']]
-    dic_diaobo = dict(zip(['存货名称', '规格型号', '调出仓库', '调入仓库', '数量（本）', '数量2（件）'],['code', 'stock', '调出仓库', '调入仓库', 'ben', 'jian']))
-    df_diaobo = df_diaobo.rename(columns = dic_diaobo)
-    #调拨入库
-    df_diaobo_ruku = df_diaobo.loc[df_diaobo['调入仓库'] == '发货仓库']
-    df_diaobo_ruku = df_diaobo_ruku[['code', 'stock',  'ben', 'jian']]
-    df_diaobo_ruku.columns = ['code', 'stock',  'ruku_ben_diao', 'ruku_jian_diaobo']
-    #调拨出库
-    df_diaobo_chuku = df_diaobo.loc[df_diaobo['调出仓库'] == '发货仓库']
-    df_diaobo_chuku = df_diaobo_chuku[['code', 'stock',  'ben', 'jian']]
-    df_diaobo_chuku.columns = ['code', 'stock',  'chuku_ben_diao', 'chuku_jian_diaobo']
-    df_diaobo_chuku
-    return df_diaobo_ruku,df_diaobo_chuku
-
-
 def addBen(string):
     pattern = r'(?P<num>\d+)本/件'
     regexp1 = re.compile(pattern)
@@ -533,99 +489,43 @@ if choice:
                                                       'ruku_ben_else',
                                                       'chuku_jian_else',
                                                       'chuku_ben_else'])
-    #销售出库
-    try:
-        xiaoshoumingxi_files = [i for i in dir_list if
-                            ('销售出库单明细表' in i) and (os.path.splitext(i)[-1].lower() == '.xlsx') and (
-                                        i.startswith('~$') != True)]
-    
+        # data_tiaozheng_chukus = data_tiaozheng_chukus.set_index(['code','stock'])
 
-        fname_xiaoshou =  xiaoshoumingxi_files[0] 
-        df_xiaoshou = xiaoshoumingxiChuli(os.path.join(dir_tiaozheng,'001库'))
-
-    except:
-        df_xiaoshou = pd.DataFrame(columns=['code','stock','chuku_ben_xiaoshou','chuku_jian_xiaoshou'])   
-
-    #调拨入库，调拨出库
-    try:
-        diaobo_files = [i for i in dir_list if
-                            ('调拨单' in i) and (os.path.splitext(i)[-1].lower() == '.xlsx') and (
-                                        i.startswith('~$') != True)]
-    
-
-        fname_diaobo =  diaobo_files[0] 
-        df_diaobo_ruku,df_diaobo_chuku = getDiaobo(os.path.join(dir_tiaozheng,fname_diaobo))
-    
-
-    except:
-        df_xiaoshou = pd.DataFrame(columns=['code','stock', 'ruku_ben_diaobo',
-                                'ruku_jian_diaobo',
-                                'chuku_ben_diaobo',
-                                'chuku_jian_diaobo'])   
-
- 
-    
+    # 其他入库单和其他出库单合并concat
     try:
         # 其他入库单和其他出库单合并concat
-        data_tiaozheng_rukus = data_tiaozheng_rukus.reset_index()
-        data_tiaozheng_chukus = data_tiaozheng_chukus.reset_index()
-        ruku_chuku = pd.concat([data_tiaozheng_rukus, data_tiaozheng_chukus,df_xiaoshou,df_diaobo_ruku,df_diaobo_chuku])
+        # data_tiaozheng_rukus = data_tiaozheng_rukus.reset_index()
+        # data_tiaozheng_chukus = data_tiaozheng_chukus.reset_index()
+        ruku_chuku = pd.concat([data_tiaozheng_rukus, data_tiaozheng_chukus])
         ruku_chuku = ruku_chuku.fillna(0)
-        ruku_chuku = ruku_chuku[ ['code',
+        ruku_chuku = ruku_chuku[['code',
                                  'stock',
-                                'ruku_jian_else',
+                                 'ruku_jian_else',
                                  'ruku_ben_else',
                                  'chuku_jian_else',
-                                 'chuku_ben_else',
-                                'chuku_ben_xiaoshou',
-                                'chuku_jian_xiaoshou',
-                                'ruku_ben_diaobo',
-                                'ruku_jian_diaobo',
-                                'chuku_ben_diaobo',
-                                'chuku_jian_diaobo']]
+                                 'chuku_ben_else']]
 
     except:
-        ruku_chuku = pd.DataFrame(columns= ['code',
-                                 'stock',
-                                'ruku_jian_else',
-                                 'ruku_ben_else',
-                                 'chuku_jian_else',
-                                 'chuku_ben_else',
-                                'chuku_ben_xiaoshou',
-                                'chuku_jian_xiaoshou',
-                                'ruku_ben_diaobo',
-                                'ruku_jian_diaobo',
-                                'chuku_ben_diaobo',
-                                'chuku_jian_diaobo'])
+        ruku_chuku = pd.DataFrame(columns=['code',
+                                           'stock',
+                                           'ruku_jian_else',
+                                           'ruku_ben_else',
+                                           'chuku_jian_else',
+                                           'chuku_ben_else'])
     ruku_chuku = ruku_chuku.set_index(['code', 'stock'])
-
-    
 
 
 else:
     ruku_chuku = pd.DataFrame(columns = ['code',
-                                 'stock',
-                                'ruku_jian_else',
-                                 'ruku_ben_else',
-                                 'chuku_jian_else',
-                                 'chuku_ben_else',
-                                'chuku_ben_xiaoshou',
-                                'chuku_jian_xiaoshou',
-                                'ruku_ben_diaobo',
-                                'ruku_jian_diaobo',
-                                'chuku_ben_diaobo',
-                                'chuku_jian_diaobo'])
+                                           'stock',
+                                           'ruku_jian_else',
+                                           'ruku_ben_else',
+                                           'chuku_jian_else',
+                                           'chuku_ben_else'])
 
-tiaozheng_pivot = pd.pivot_table(ruku_chuku,index = ['code','stock'],values = [ 'ruku_jian_else',
-                                 'ruku_ben_else',
-                                 'chuku_jian_else',
-                                 'chuku_ben_else',
-                                'chuku_ben_xiaoshou',
-                                'chuku_jian_xiaoshou',
-                                'ruku_ben_diaobo',
-                                'ruku_jian_diaobo',
-                                'chuku_ben_diaobo',
-                                'chuku_jian_diaobo'],aggfunc = np.sum,fill_value = 0)
+
+
+tiaozheng_pivot = pd.pivot_table(ruku_chuku,index = ['code','stock'],values = ['ruku_jian_else','ruku_ben_else','chuku_jian_else','chuku_ben_else'],aggfunc = np.sum,fill_value = 0)
 
 pancunbiao = pancunbiao.reset_index()
 pancunbiao = pancunbiao.set_index(['code','stock'])
@@ -636,16 +536,6 @@ if tiaozheng_pivot.empty:
     result0['ruku_jian_else'] = 0
     result0['chuku_ben_else'] = 0
     result0['chuku_jian_else'] = 0
-    result0['chuku_ben_xiaoshou'] = 0
-    result0['chuku_jian_xiaoshou'] = 0
-    result0['ruku_ben_diaobo'] = 0
-    result0['ruku_jian_diaobo'] = 0
-    result0['chuku_ben_diaobo'] = 0
-    result0['chuku_jian_diaobo'] = 0
-
-
-
-
 else:
     result0 = pd.merge(pancunbiao, tiaozheng_pivot, left_index=True, right_index=True, how='outer')
 
@@ -679,10 +569,10 @@ result0 = result0.assign(content = np.where(result0.content.isin(['',0,np.nan]),
                                  np.where(result0.begin_ben > 0, result0.begin_ben / result0.begin_jian,
                                          result0.ruku_ben /result0.ruku_jian)),result0.content))
 
-result0['ruku_jian_chejian'] = result0['ruku_jian'] - result0['ruku_jian_else'] - result0['ruku_ben_diaobo'] 
-result0['ruku_ben_chejian'] = result0['ruku_ben'] - result0['ruku_ben_else'] - result0['ruku_jian_diaobo'] 
-# result0['chuku_jian_xiaoshou'] = result0['chuku_jian'] - result0['chuku_jian_else']
-# result0['chuku_ben_xiaoshou'] = result0['chuku_ben'] - result0['chuku_ben_else']
+result0['ruku_jian_chejian'] = result0['ruku_jian'] - result0['ruku_jian_else']
+result0['ruku_ben_chejian'] = result0['ruku_ben'] - result0['ruku_ben_else']
+result0['chuku_jian_xiaoshou'] = result0['chuku_jian'] - result0['chuku_jian_else']
+result0['chuku_ben_xiaoshou'] = result0['chuku_ben'] - result0['chuku_ben_else']
 
 pancunbiao_cloumns_names0 = [
     'code',
@@ -706,12 +596,7 @@ pancunbiao_cloumns_names0 = [
  'ruku_ben_else',
  'ruku_jian_else',
  'ruku_jian_chejian',
- 'ruku_ben_chejian',
-     'ruku_ben_diaobo',
-    'ruku_jian_diaobo',
-    'chuku_ben_diaobo',
-    'chuku_jian_diaobo'
-]
+ 'ruku_ben_chejian']
 
 pancunbiao_cloumns_names1 = ['货号',
  '品名',
@@ -734,11 +619,7 @@ pancunbiao_cloumns_names1 = ['货号',
  '调整入库本数',
  '调整入库件数',
  '车间入库件数',
- '车间入库本数',
-    '调拨入库本数' ,   
- '调拨入库件数' ,
-  '调拨出库本数',
- '调拨出库件数' ]
+ '车间入库本数']
 
 dic = dict(zip(pancunbiao_cloumns_names0,pancunbiao_cloumns_names1))
 result0 = result0.rename(columns = dic)
@@ -754,17 +635,12 @@ result1 = result1[[ '类别02',
  '入库件数',
  '调整入库本数',
  '调整入库件数',
-  '调拨入库本数' ,   
- '调拨入库件数' ,
-                  
  '车间入库本数',
  '车间入库件数',
  '出库本数',
  '出库件数',
  '调整出库本数',
  '调整出库件数',
- '调拨出库本数' ,   
- '调拨出库件数',
  '销售本数',
  '销售件数',
   '结存本数',
@@ -950,73 +826,6 @@ with pd.ExcelWriter(fname_pancunbiao, engine='openpyxl',mode='a', if_sheet_exist
 
 fname_pancunbiao  = printseting(fname_pancunbiao, riqi)
 os.startfile(fname_pancunbiao)
-
-
-
-
-
-
-xiaoshoumingxi_files = [i for i in dir_list if
-                            ('销售出库单明细表' in i) and (os.path.splitext(i)[-1].lower() == '.xlsx') and (
-                                        i.startswith('~$') != True)]
-    
-
-fname_xiaoshou =  xiaoshoumingxi_files[0] 
-df_xiaoshou = xiaoshoumingxiChuli(fname_xiaoshou,'001库')
-df_xiaoshou
-
-
-data_tiaozheng_rukus
-
-
-data_tiaozheng_chukus
-
-
-df_diaobo_ruku
-
-
-
-diaobo_files = [i for i in dir_list if
-                            ('调拨单' in i) and (os.path.splitext(i)[-1].lower() == '.xlsx') and (
-                                        i.startswith('~$') != True)]
-    
-
-fname_diaobo =  diaobo_files[0] 
-df_diaobo_ruku,df_diaobo_chuku = getDiaobo(os.path.join(dir_tiaozheng,fname_diaobo))
-
-
-
-df_diaobo_chuku
-
-
-diaobo_files = [i for i in dir_list if
-                            ('调拨单' in i) and (os.path.splitext(i)[-1].lower() == '.xlsx') and (
-                                        i.startswith('~$') != True)]
-
-
-diaobo_files
-
-
-diaobo_files[0]
-
-
-ruku_chuku = pd.concat([data_tiaozheng_rukus, data_tiaozheng_chukus,df_xiaoshou,df_diaobo_ruku,df_diaobo_chuku])
-ruku_chuku
-
-
-data_tiaozheng_rukus
-
-
-data_tiaozheng_chukus
-
-
-df_xiaoshou
-
-
-df_diaobo_chuku
-
-
-ruku_chuku.to_excel('rukuchuku.xlsx')
 
 
 
