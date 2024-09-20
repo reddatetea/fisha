@@ -104,7 +104,7 @@ def getLaite(fname_laite):
     return df_laite,shouru,chenben
 
 
-path = r'F:\a00nutstore\008\zw08\新公司\7月财务报表'
+path = r'F:\a00nutstore\008\zw08\新公司\8月财务报表'
 os.chdir(path)
 lirunLst = [i for i in os.listdir(path) if ('利润' in i) and (not i.startswith('~$')) ]
 lirunLst
@@ -180,7 +180,7 @@ result
 result.loc['一、营业收入','benyue'] = result.loc['一、营业收入','benyue'] - sum(jian_shouru)
 result.loc['减：营业成本'] = result.loc['减：营业成本','benyue'] -  sum(jian_chengben)
 result.loc['二、营业利润（亏损以"－"号填列）','benyue'] = result.loc['二、营业利润（亏损以"－"号填列）','benyue'] - sum(jian_shouru) + sum(jian_chengben)
-result.loc['二、营业利润（亏损以"－"号填列）','leiji'] = result.loc['二、营业利润（亏损以"－"号填列）','bleiji'] - sum(jian_shouru) + sum(jian_chengben)
+result.loc['二、营业利润（亏损以"－"号填列）','leiji'] = result.loc['二、营业利润（亏损以"－"号填列）','leiji'] - sum(jian_shouru) + sum(jian_chengben)
 
 
 # In[13]:

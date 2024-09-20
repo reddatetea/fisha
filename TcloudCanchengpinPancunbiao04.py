@@ -768,7 +768,7 @@ def xiaoshoumingxiChuli(fname, store_num):
                     break
     df = df.iloc[:index]
     df = df.dropna(how='all', axis=1)
-    df = df[['存货编码', '存货代码', '数量', '数量2']]
+    df = df[['存货编码', '规格型号', '数量', '数量2']]
     df.columns = ['code', 'stock', 'chuku_ben_xiaoshou', 'chuku_jian_xiaoshou']
     return df
 
