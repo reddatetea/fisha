@@ -814,6 +814,7 @@ def getTiaozhengRuku(fname):
     df = df.rename(columns={'货号': 'code', '品名': 'stock', '件数': 'ruku_jian_else', '数量（本）': 'ruku_ben_else'})
     df['chuku_jian_else'] = 0
     df['chuku_ben_else'] = 0
+    df = df.dropna()
     return df
 
 
@@ -828,6 +829,7 @@ def getTiaozhengChuku(fname):
     df = df.rename(columns={'货号': 'code', '品名': 'stock', '件数': 'chuku_jian_else', '数量（本）': 'chuku_ben_else'})
     df['ruku_jian_else'] = 0
     df['ruku_ben_else'] = 0
+    df = df.dropna()
 
     return df
 
@@ -862,7 +864,6 @@ pancunbiao = pd.pivot_table(df2, index=[
     'end_jian',
 ], aggfunc=np.sum, fill_value=0)
 
-pancunbiao
 
 # #调整入库单汇总
 # 本月是否有入库调整和出库调整
@@ -950,7 +951,7 @@ if choice:
         # 其他入库单和其他出库单合并concat
         # data_tiaozheng_rukus = data_tiaozheng_rukus.reset_index()
         # data_tiaozheng_chukus = data_tiaozheng_chukus.reset_index()
-        
+
         ruku_chuku = pd.concat(
             [data_tiaozheng_rukus, data_tiaozheng_chukus, df_xiaoshou, df_diaobo_ruku, df_diaobo_chuku])
         ruku_chuku = ruku_chuku.fillna(0)
@@ -1059,8 +1060,291 @@ if choice:
 else:
     pass
 # 万一没有含量，最后才用计算的方法
+result0 = result0.assign(
+content=np.where(result0.content.isin(['', 0, np.nan]), np.where((result0.begin_ben + result0.ruku_ben) != 0,
+                                                                 (result0.begin_ben + result0.ruku_ben) / (
+                                                                             result0.begin_jian + result0.ruku_jian),
+                                                                 np.where(result0.begin_ben > 0,
+                                                                          result0.begin_ben / result0.begin_jian,
+                                                                          np.where(result0.ruku_ben >0,result0.ruku_ben / result0.ruku_jian,result0.end_ben / result0.end_jian))),
+                 result0.content))
+
+result0['ruku_jian_chejian'] = result0['ruku_jian'] - result0['ruku_jian_else'] - result0['ruku_jian_diaobo']
+result0['ruku_ben_chejian'] = result0['ruku_ben'] - result0['ruku_ben_else'] - result0['ruku_ben_diaobo']
+# result0['chuku_jian_xiaoshou'] = result0['chuku_jian'] - result0['chuku_jian_else']
+# result0['chuku_ben_xiaoshou'] = result0['chuku_ben'] - result0['chuku_ben_else']
+
+pancunbiao_cloumns_names0 = [
+    'code',
+    'stock',
+    'class02',
+    'class05',
+    'begin_ben',
+    'begin_jian',
+    'chuku_ben',
+    'chuku_jian',
+    'chuku_ben_xiaoshou',
+    'chuku_jian_xiaoshou',
+    'chuku_ben_else',
+    'chuku_jian_else',
+
+    'content',
+    'end_ben',
+    'end_jian',
+    'ruku_ben',
+    'ruku_jian',
+    'ruku_ben_else',
+    'ruku_jian_else',
+    'ruku_jian_chejian',
+    'ruku_ben_chejian',
+    'ruku_ben_diaobo',
+    'ruku_jian_diaobo',
+    'chuku_ben_diaobo',
+    'chuku_jian_diaobo'
+]
+
+pancunbiao_cloumns_names1 = ['货号',
+                             '品名',
+                             '类别02',
+                             '类别',
+                             '月初本数',
+                             '月初件数',
+                             '出库本数',
+                             '出库件数',
+                             '销售本数',
+                             '销售件数',
+                             '调整出库本数',
+                             '调整出库件数',
+
+                             '含量',
+                             '结存本数',
+                             '结存件数',
+                             '入库本数',
+                             '入库件数',
+                             '调整入库本数',
+                             '调整入库件数',
+                             '车间入库件数',
+                             '车间入库本数',
+                             '调拨入库本数',
+                             '调拨入库件数',
+                             '调拨出库本数',
+                             '调拨出库件数']
+
+dic = dict(zip(pancunbiao_cloumns_names0, pancunbiao_cloumns_names1))
+result0 = result0.rename(columns=dic)
+result1 = result0.copy()
+result1 = result1[['类别02',
+                   '类别',
+                   '货号',
+                   '品名',
+                   '含量',
+                   '月初本数',
+                   '月初件数',
+                   '入库本数',
+                   '入库件数',
+                   '调整入库本数',
+                   '调整入库件数',
+                   '调拨入库本数',
+                   '调拨入库件数',
+
+                   '车间入库本数',
+                   '车间入库件数',
+                   '出库本数',
+                   '出库件数',
+                   '调整出库本数',
+                   '调整出库件数',
+                   '调拨出库本数',
+                   '调拨出库件数',
+                   '销售本数',
+                   '销售件数',
+                   '结存本数',
+                   '结存件数'
+                   ]]
+
+result2 = result1[['类别',
+                   '货号',
+                   '含量',
+                   '月初本数',
+                   '入库本数',
+                   '车间入库本数',
+                   '车间入库件数',
+                   '出库本数',
+                   '销售本数',
+                   '结存本数',
+                   ]]
+data = []
+gp = result2.groupby(['类别'], sort=False)
+for index, total in gp:
+    ser = [index[0] + ' 小计', '', total['含量'].mean(), \
+           total['月初本数'].sum(), total['入库本数'].sum(), \
+           total['车间入库本数'].sum(), total['车间入库件数'].sum(), \
+           total['出库本数'].sum(), total['销售本数'].sum(), total['结存本数'].sum()]
+    data.append(ser)
 
 
+def sumGroupy(df):
+    data = []
+    gp = df.groupby(['类别'], sort=False)
+    for index, total in gp:
+        ser = [index[0] + ' 小计', '', total['含量'].mean(), \
+               total['月初本数'].sum(), total['入库本数'].sum(), \
+               total['车间入库本数'].sum(), total['车间入库件数'].sum(), \
+               total['出库本数'].sum(), total['销售本数'].sum(), total['结存本数'].sum()]
+        data.append(ser)
+    return pd.DataFrame(data, columns=df.columns)
+
+
+result3 = sumGroupy(result2)
+
+dic_temp = dict(result3.sum())
+result4 = pd.DataFrame.from_dict(dic_temp, orient='index').T
+result5 = pd.concat([result3, result4])
+result2_result3 = pd.concat([result2, result3])
+result2_result3 = result2_result3.sort_values('类别')
+result2_result3
+result6 = pd.concat([result2_result3, result4])
+ser1 = result6.iloc[-1].to_list()
+ser1[0] = '合计'
+ser1[1] = ''
+ser1[2] = ''
+result6.iloc[-1] = ser1
+
+wugesi = result1.copy()
+heji_row = dict(result0.sum())
+heji = pd.DataFrame.from_dict(heji_row, orient='index').T
+wugesi = pd.concat([wugesi, heji])
+ser1 = wugesi.iloc[-1].to_list()
+ser1[0] = '合计'
+ser1[1] = ''
+ser1[2] = ''
+ser1[3] = ''
+wugesi.iloc[-1] = ser1
+
+
+def printseting(fname1, riqi):
+    # 设置字体、边框、对齐等常量
+    font = Font(name='宋体', size=10)
+    font_xiaoji = Font(name='宋体', bold=True, size=10)
+    font_firstrow = Font(name='宋体', bold=True, size=20)
+    thin_danbian = Side(border_style='thin')
+    double_danbian = Side(border_style='double')
+    thin_bian = Border(
+        left=thin_danbian,
+        right=thin_danbian,
+        top=thin_danbian,
+        bottom=thin_danbian)
+    double_bian = Border(
+        left=thin_danbian,
+        right=thin_danbian,
+        top=thin_danbian,
+        bottom=double_danbian)
+    wb = openpyxl.load_workbook(fname1)
+    for ws in wb.worksheets:
+        if ws.title == 'Sheet':
+            del wb[ws.title]
+        elif ws.title == '无格式':
+            ws.freeze_panes = 'E2'
+
+        else:
+            # 插入第一行
+            ws.insert_rows(1)
+            ws['A1'].value = '双佳' + ws.title + ' ' + riqi
+            ws['A1'].font = font_firstrow
+            ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
+            max_row = ws.max_row
+            max_column = ws.max_column
+            if ws.title != '合计':
+                # 单元格宽度
+                ws.column_dimensions['A'].width = 10
+                ws.column_dimensions['B'].width = 14.33
+                ws.column_dimensions['C'].width = 3.67
+                # ws.column_dimensions['D'].width = 3.67
+                for j in 'DEFGHIJ':
+                    ws.column_dimensions['{}'.format(j)].width = 9.44
+                    ws.merge_cells('A1:J1')
+                for row in range(2, max_row + 1):  # 从第二行开始，设置单元格格式
+                    if row == 2:
+                        for col in range(1, max_column + 1):
+                            ws.cell(row, col).alignment = Alignment(horizontal='center', vertical='center')
+                    else:
+                        for col in range(1, max_column + 1):
+                            if col <= 3:
+                                ws.cell(row, col).alignment = Alignment(horizontal='left', vertical='center')
+                            else:
+                                ws.cell(row, col).alignment = Alignment(horizontal='center', vertical='center')
+                ws.freeze_panes = ws['E3']
+            else:
+                # 单元格宽度
+                ws.column_dimensions['A'].width = 16
+                ws.column_dimensions['B'].width = 12
+                ws.column_dimensions['C'].width = 14
+                ws.column_dimensions['D'].width = 12
+                ws.column_dimensions['E'].width = 12
+                ws.column_dimensions['F'].width = 13
+                ws.column_dimensions['G'].width = 13
+                ws.column_dimensions['H'].width = 12
+                ws.column_dimensions['I'].width = 12
+                ws.column_dimensions['J'].width = 12
+                ws.merge_cells('A1:J1')
+                # ws.freeze_panes = ws['E3']
+                for row in range(2, max_row + 1):  # 从第二行开始，设置单元格格式
+                    if row == 2:
+                        for col in range(1, max_column + 1):
+                            ws.cell(row, col).alignment = Alignment(horizontal='center', vertical='center')
+                    else:
+                        for col in range(1, max_column + 1):
+                            if col <= 1:
+                                ws.cell(row, col).alignment = Alignment(horizontal='left', vertical='center')
+                            else:
+                                ws.cell(row, col).alignment = Alignment(horizontal='right', vertical='center')
+            for cell in ws['A']:
+                row = cell.row
+                if row == 1:
+                    continue
+                else:
+                    if '小计' in cell.value:
+                        for col in range(1, max_column + 1):
+                            ws.cell(row, col).font = font_xiaoji
+                            ws.cell(row, col).border = double_bian
+                            ws.merge_cells('A{}:C{}'.format(row, row))
+                    else:
+                        for col in range(1, max_column + 1):
+                            ws.cell(row, col).font = font
+                            ws.cell(row, col).border = thin_bian
+            # ws.freeze_panes = ws['E3']
+            ws.print_title_rows = '1:2'  # the first row
+            # 页脚设置
+            ws.oddFooter.center.text = " &[Page] / &N"  # 1/n
+            ws.oddFooter.center.size = 12  # 页脚中字体大小
+            ws.oddFooter.center.font = "Tahoma"  # 页脚中字体
+            ws.oddFooter.center.color = "000000"  # 页脚中字体颜色
+            ws.oddFooter.right.text = "张文伟 &[Date]"  # 页脚右 文字
+            ws.oddFooter.right.size = 12  # 页脚右 字体大小
+            ws.oddFooter.right.font = "书体坊米芾体"  # 页脚右 字体
+            ws.oddFooter.right.color = "000000"  # 页脚右 字体颜色
+            ws.page_margins = openpyxl.worksheet.page.PageMargins(top=0.48, header=0.5, left=0.5, right=0.24,
+                                                                  footer=0.5,
+                                                                  bottom=1)
+            for i in ws.iter_rows():  # 将零值替换为空
+                for j in i:
+                    if j.value == 0:
+                        j.value = ''
+                    else:
+                        continue
+
+            ws.freeze_panes = 'B3'
+            wb.active = ws
+
+    wb.save(fname1)
+    return fname1
+
+
+with pd.ExcelWriter(fname_pancunbiao, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+    wugesi.to_excel(writer, sheet_name='无格式', index=False)
+    result6.to_excel(writer, sheet_name='产成品盘存表', index=False)
+
+fname_pancunbiao = printseting(fname_pancunbiao, riqi)
+os.startfile(fname_pancunbiao)
 
 
 
