@@ -768,7 +768,7 @@ def xiaoshoumingxiChuli(fname, store_num):
                     break
     df = df.iloc[:index]
     df = df.dropna(how='all', axis=1)
-    df = df[['存货编码', '规格型号', '数量', '数量2']]
+    df = df[['存货编码', '存货', '数量', '数量2']]                    #28/9调
     df.columns = ['code', 'stock', 'chuku_ben_xiaoshou', 'chuku_jian_xiaoshou']
     return df
 
@@ -776,8 +776,8 @@ def xiaoshoumingxiChuli(fname, store_num):
 def getDiaobo(fname_diaobo):
     df_diaobo = pd.read_excel(fname_diaobo)
     df_diaobo = df_diaobo.iloc[:-1]
-    df_diaobo = df_diaobo[['存货名称', '规格型号', '调出仓库', '调入仓库', '数量（本）', '数量2（件）']]
-    dic_diaobo = dict(zip(['存货名称', '规格型号', '调出仓库', '调入仓库', '数量（本）', '数量2（件）'],
+    df_diaobo = df_diaobo[['存货编码', '存货名称', '调出仓库', '调入仓库', '数量（本）', '数量2（件）']]
+    dic_diaobo = dict(zip(['存货编码', '存货名称', '调出仓库', '调入仓库', '数量（本）', '数量2（件）'],
                           ['code', 'stock', '调出仓库', '调入仓库', 'ben', 'jian']))
     df_diaobo = df_diaobo.rename(columns=dic_diaobo)
     # 调拨入库
@@ -1037,7 +1037,9 @@ else:
 
 result0 = result0.reset_index()
 result0['class02'] = result0['class02'].fillna(method='ffill')  # 向下填充
+result0['class02'] = result0['class02'].fillna(method='bfill')  # 向下填充
 result0['class05'] = result0['class05'].fillna(method='ffill')
+result0['class05'] = result0['class05'].fillna(method='bfill')
 result0 = result0.fillna(0)
 result0['content'] = result0['code'].map(content_dic)  # 用存货档案中的含量替换
 # 更新含量
@@ -1201,7 +1203,7 @@ result4 = pd.DataFrame.from_dict(dic_temp, orient='index').T
 result5 = pd.concat([result3, result4])
 result2_result3 = pd.concat([result2, result3])
 result2_result3 = result2_result3.sort_values('类别')
-result2_result3
+# result2_result3
 result6 = pd.concat([result2_result3, result4])
 ser1 = result6.iloc[-1].to_list()
 ser1[0] = '合计'
@@ -1256,11 +1258,11 @@ def printseting(fname1, riqi):
             if ws.title != '合计':
                 # 单元格宽度
                 ws.column_dimensions['A'].width = 12
-                ws.column_dimensions['B'].width = 17.33
+                ws.column_dimensions['B'].width = 14.33
                 ws.column_dimensions['C'].width = 3.67
                 # ws.column_dimensions['D'].width = 3.67
                 for j in 'DEFGHIJ':
-                    ws.column_dimensions['{}'.format(j)].width = 10.44
+                    ws.column_dimensions['{}'.format(j)].width = 9.44
                     ws.merge_cells('A1:J1')
                 for row in range(2, max_row + 1):  # 从第二行开始，设置单元格格式
                     if row == 2:

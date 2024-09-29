@@ -1037,7 +1037,9 @@ else:
 
 result0 = result0.reset_index()
 result0['class02'] = result0['class02'].fillna(method='ffill')  # 向下填充
+result0['class02'] = result0['class02'].fillna(method='bfill')  # 向下填充
 result0['class05'] = result0['class05'].fillna(method='ffill')
+result0['class05'] = result0['class05'].fillna(method='bfill')
 result0 = result0.fillna(0)
 result0['content'] = result0['code'].map(content_dic)  # 用存货档案中的含量替换
 # 更新含量

@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
 
 '''
 tcloud中用销售订单生成税局发票模板
@@ -9,6 +14,8 @@ import openpyxl
 import numpy as np
 import pandas as pd
 
+
+# In[2]:
 
 
 def danjuChuli(df):
@@ -35,6 +42,7 @@ def chuliMingchen(d):
     return qian,hou
 
 
+# In[3]:
 
 
 #读取发票模板
@@ -43,13 +51,15 @@ df_fapiao = pd.read_excel(fname_fapiao,header = 2,dtype = {'商品和服务税�
 df_fapiao
 
 
+# In[5]:
 
-fname_dingdan = r"F:\a00nutstore\008\zw08\新公司\腾顺SaleOrder.xlsx"
+
+fname_dingdan = r"F:\repos\fish\肥猫销售订单SO-2024-04-0082.xlsx"
 df_dingdan = pd.read_excel(fname_dingdan,sheet_name = 0,header = 8)
 df_dingdan
 
 
-
+# In[6]:
 
 
 df_dingdan1 = danjuChuli(df_dingdan) 
@@ -57,9 +67,13 @@ qian,hou = chuliMingchen(df_dingdan1)
 df_dingdan1
 
 
+# In[ ]:
+
+
 df_fapiao.columns.to_list()
 
 
+# In[7]:
 
 
 df_dingdan1['项目名称'] = df_dingdan1['货号'] + '-' + hou
@@ -87,6 +101,8 @@ df_dingdan2 = df_dingdan1[['项目名称',
 df_dingdan2
 
 
+# In[8]:
+
 
 fname_result = r"F:\repos\fish\发票模板 - 副本.xlsx"
 
@@ -96,8 +112,14 @@ with pd.ExcelWriter(fname_result, engine='openpyxl',mode='a', if_sheet_exists='o
 
 
 
+
+
+
+# In[ ]:
+
+
 #提取发票台头等
-fname_taitou = r"F:\a00nutstore\008\zw08\新公司\腾顺SaleOrder.xlsx"
+fname_taitou = r"F:\repos\fish\肥猫销售订单SO-2024-04-0082.xlsx"
 df_taitou = pd.read_excel(fname_dingdan,sheet_name = 0)
 df_taitou1 = df_taitou.iloc[:,[1,3]]
 df_taitou1.columns = ['kehu','names' ]
