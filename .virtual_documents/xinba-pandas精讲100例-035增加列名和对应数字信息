@@ -1,0 +1,45 @@
+import io
+import pandas as pd
+
+
+data = '''
+基金名称 电子 传媒 计算机
+ 基金A  1  6   7
+ 基金B  0  3   8
+ 基金C  7  0   9
+
+'''
+
+df = pd.read_csv(io.StringIO(data), sep=r'\s+')
+df
+
+
+(df.set_index('基金名称').xs('基金A').to_dict())
+
+
+_
+
+
+[f'{k}({v})' for k,v in _.items()]
+
+
+'、'.join([f'{k}({v})' for k,v in _.items()])
+
+
+(
+    df.set_index('基金名称')
+    .xs('基金A')
+    .sort_values(ascending = False)
+    .to_dict()
+)
+
+
+(
+    df.set_index('基金名称')
+    .apply(lambda x:x.sort_values(ascending = False).to_dict(),axis = 1)
+    .map(lambda x:[f'{k}({v})' for k,v in x.items() if v > 0])
+    .map('、'.join)
+)
+
+
+
