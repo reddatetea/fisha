@@ -15,10 +15,22 @@ import pandas as pd
 import shutil
 
 
+
+def res_path(relative_path):
+    """获取资源绝对路径"""
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+#读取发票模板
+fname_fapiao = res_path('img\piao.xlsx')
+df_fapiao = pd.read_excel(fname_fapiao,header = 2,dtype = {'商品和服务税收分类编码':'str'})
+
 #选择税率
 shuilu = easygui.choicebox(msg = '请选择税率',choices = [0.13,0.01,0.02])
 shuilu  = float(shuilu)
-
 
 #选择数量的开具方式，件数or本楼
 shuliang_fangsi = easygui.choicebox(msg = '请选择数量开具方式',choices = ['件数','本数'])
@@ -27,16 +39,9 @@ shuliang_fangsi = easygui.choicebox(msg = '请选择数量开具方式',choices 
 #选择发票开具方式
 fapiao_fangsi = easygui.choicebox(msg = '请选择发票开具方式',choices = ['按客户和存货编码','按销售订单和存货编码','按客户汇总'])
 
-
-
-#读取发票模板
-fname_fapiao = r"F:\repos\fish\发票模板.xlsx"
-df_fapiao = pd.read_excel(fname_fapiao,header = 2,dtype = {'商品和服务税收分类编码':'str'})
-df_fapiao
-
-
-path = r"F:\repos\fisha\莱新销售订单0826-0925"
-os.chdir(path)
+path = easygui.diropenbox('请点选销售订单所在文件夹')
+# path = r"F:\repos\fisha\莱新销售订单0826-0925"
+# os.chdir(path)
 
 #按照发票开具方式，及数量选择方式，生成对应的文件夹
 path1 = f'发票模板-{fapiao_fangsi}-{shuliang_fangsi}'
@@ -46,9 +51,6 @@ if not os.path.exists(path1):
         os.mkdir(path1)
     except:
         pass
-
-    
-
 
 
 def getPivot(df):
@@ -106,13 +108,13 @@ def getFapiaoBen(d,shuilu,shuliang_fangsi):
     return d
 
 def getFapiaoMoban(gongsi,shuliang_fangsi):
-    filename=''.join(['发票模板-',shuliang_fangsi,'-',gongsi,'.xlsx'])
+    filename=''.join(['发票模板-',gongsi,'-',shuliang_fangsi,'.xlsx'])
     newname = os.path.join(path1,filename)
     shutil.copyfile(fname_fapiao, newname)
     return newname
 
-def getFapiaoMobanDingdanhao(gongsi,shuliang_fangsi,dingdanhao):
-    filename=''.join(['发票模板-',gongsi,'-',shuliang_fangsi,'-',dingdanhao,'.xlsx'])
+def getFapiaoMobanDingdanhao(gongsi,dingdanhao,shuliang_fangsi):
+    filename=''.join(['发票模板-',gongsi,'-',dingdanhao,'-',shuliang_fangsi,'.xlsx'])
     newname = os.path.join(path1,filename)
     shutil.copyfile(fname_fapiao, newname)
     return newname
@@ -146,20 +148,15 @@ def guige(string):
         hou0 = ''
     return qian0,hou0    
             
-    
-    
-
-
 #莱新销售订单超5000条，不能一次导出，分三次导出，并分别存于同一文件下，先将它们合并
 data = []
 for i in os.listdir(path):
-    if  os.path.isfile(i):
-        i = os.path.join(path,i)
-        df = pd.read_excel(i)
+    j = os.path.join(path,i)
+    if  os.path.isfile(j):
+        df = pd.read_excel(j)
         data.append(df)
     else :
         continue
-   
 
 df_xiaoshou0 = pd.concat(data)
 df_xiaoshou1 = df_xiaoshou0.loc[df_xiaoshou0['单据执行状态'] != '合计']
@@ -177,12 +174,45 @@ lst1 = ['单据编号',
  '含税金额',
         '客户']
 df_xiaoshou2 = df_xiaoshou1[lst1]
-df_xiaoshou3 = df_xiaoshou2.copy()
+df_xiaoshou3 = df_xiaoshou2.loc[~df_xiaoshou2['单据编号'].isnull()]
+df_xiaoshou3['存货代码'] = df_xiaoshou3['存货代码'].ffill()
 s = []
-for i in df_xiaoshou2['存货编码'].to_list():
+for i in df_xiaoshou3['存货编码'].to_list():
     j = fengefu(i)
     s.append(j)
 df_xiaoshou3['存货编码'] = s
+
+# 对存货编码进一步处理，账本类变为账本+存货名称按'k'分列后的后面部分
+def chuliZhangben(str1, str2):
+    try:
+        str1 = int(str1)
+    except:
+        str1 = str1
+    if isinstance(str1, int):
+        if 'K' in str2:
+            qian, hou = str2.split('K')
+        elif 'k' in str2:
+            qian, hou = str2.split('k')
+        else:
+            qian = ''
+            hou = str2
+
+        str1 = str(str1) + hou
+        str2 = str2
+    else:
+        str1 = str1
+        str2 = str2
+    newbianma = str1
+    return newbianma
+
+newbianmas = []
+for index, row in df_xiaoshou3.iterrows():
+    bianma = row['存货编码']
+    name = row['存货名称']
+    newbianma = chuliZhangben(bianma, name)
+    newbianmas.append(newbianma)
+df_xiaoshou3['存货编码'] = newbianmas
+
 
 
 if fapiao_fangsi == '按销售订单和存货编码':
@@ -191,7 +221,6 @@ if fapiao_fangsi == '按销售订单和存货编码':
         dingdanhao = k
         gongsi = v['客户'].to_list()[0]
         newname = getFapiaoMobanDingdanhao(gongsi,dingdanhao,shuliang_fangsi)
-        print(newname)
         pivot = getPivot(v)
         # pivot1 = chuliMingchen(pivot)
         fapiao = getFapiaoBen(pivot,shuilu,shuliang_fangsi)
@@ -216,10 +245,10 @@ else :
         gongsi = k
         newname = getFapiaoMoban(gongsi,shuliang_fangsi)
         v1 = v.sum().T.to_frame().T
-        v1.loc[0,'存货名称'] = '*印刷品*本册'
-        v1.loc[0,'存货分类'] = '*印刷品*本册'
-        v1.loc[0,'存货编码'] = '*印刷品*本册'
-        v1.loc[0,'存货代码'] = '*印刷品*本册'
+        v1.loc[0,'存货名称'] = '本册'
+        v1.loc[0,'存货分类'] = '本册'
+        v1.loc[0,'存货编码'] = '本册'
+        v1.loc[0,'存货代码'] = '本册'
         pivot = getPivot(v1)
         # pivot1 = chuliMingchen(pivot)
         fapiao = getFapiaoBen(pivot,shuilu,shuliang_fangsi)
@@ -229,6 +258,7 @@ else :
         
 
     
+
     
     
     
@@ -236,47 +266,5 @@ else :
     
     
     
-    
-    
-
-
-
-df_xiaoshou3
-
-
-gp = df_xiaoshou3.groupby('客户')
-   
-
-
-for k,v in gp:
-    print(k,v)
-
-
-
-v0 = gp.get_group('龙岩连卫中')
-v0
-
-
-v1 = v0.sum().T.to_frame().T
-v1
-
-
-v1.loc[0,'存货名称'] = '*印刷品*本册'
-v1.loc[0,'存货分类'] = '*印刷品*本册'
-v1.loc[0,'存货编码'] = '*印刷品*本册'
-v1.loc[0,'存货代码'] = '*印刷品*本册'
-v1
-
-
-v2  = gp.get_group('鹤岗市超东选商贸有限公司')
-v2
-
-
-v2.sum()
-
-
-v3 = v2.sum().T.to_frame().T
-v3
-
 
 
