@@ -11,7 +11,6 @@ from openpyxl.styles import Font, Border, Side, Fill, Alignment
 import formatPainter
 import re
 
-
 dic = {'010201': '软抄',
  '010213': '定制产品',
  '010211': '定制产品',
@@ -43,90 +42,39 @@ col_lst = ['单据日期','业务类型','单据编号','单据类型','仓库',
  '出库数量',
  '出库数量2']
 
-fname = r"F:\a00nutstore\008\zw08\废纸房\出入库流水9.26-10.25导出数据.xlsx"
+# fname = r"F:\a00nutstore\008\zw08\废纸房\出入库流水9.26-10.25导出数据.xlsx"
+msg = '请点选出入库流水'
+fname = easygui.fileopenbox(msg)
+path,_ = os.path.split(fname)
+os.chdir(path)
 df = pd.read_excel(fname, skiprows = 7,dtype= {'Unnamed: 6':str})
 df = df.iloc[:, 1:]
-df
-
-
-df.columns = lst
+df.columns = col_lst
 df = df[~df['存货编码'].isnull()]
-df2 = df1[['存货分类编码','存货编码','存货','规格型号','入库数量2']]
-df2
-
-
-df3 = df2.assign(feipin = (
- df2['存货分类编码']
+df1 = df[['存货分类编码','存货编码','存货','规格型号','入库数量2']]
+df2 = df1.assign(feipin = (
+ df1['存货分类编码']
     .str[:6]
     # .map(lambda x:x.zfill(6))
     .map(dic)
 ))
-df3
 
-
-
-
-df4 = df3[~df3.feipin.isnull()]
-df4
-
-
-df4.sum()
-
-
-df4.to_excel('废品.xlsx',index = False)
-df4
-
-
-result = pd.pivot_table(df4,index = ['feipin'],values = ['入库数量2'],aggfunc = sum)
-result
-
-
-
-result.index.name = '产品大类'
-result.columns =  ['单位（件）']
-result
-
-
-result.loc['合计','单位（件）'] = result['单位（件）'].sum()
-
-
-result
-
-
-
-a = result.loc['锐意软抄','入库数量2']
-a
-
-
+df3 = df2[~df2.feipin.isnull()]
+result = pd.pivot_table(df3,index = 'feipin',values = '入库数量2',aggfunc = 'sum')
 result.loc['合计','入库数量2'] = result['入库数量2'].sum()
-result
-
-
-result['入库数量2'].sum()
-
-
 dic1 = {v:k for k,v in dic.items()}
-dic1
-
-
 result = result.assign(biama = (
     result.index
     .map(dic1)
 ))
-result
-
-
 result = result.sort_values('biama')
-result
-
-
 result = result[['入库数量2']]
-result
-
-
 result.index.name = '产品大类'
 result.columns =  ['单位（件）']
-result
+result.to_excel('废品入库数量.xlsx',index = True)
+os.startfile('废品入库数量.xlsx')
+
+
 
 
 
