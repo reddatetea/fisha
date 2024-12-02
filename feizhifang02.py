@@ -52,6 +52,8 @@ df = df.iloc[:, 1:]
 df.columns = col_lst
 df = df[~df['存货编码'].isnull()]
 df1 = df[['存货分类编码','存货编码','存货','规格型号','入库数量2']]
+df1 = df1[~df1['存货'].str.contains('素描|线环')]
+
 df2 = df1.assign(feipin = (
  df1['存货分类编码']
     .str[:6]
