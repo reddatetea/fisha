@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import openpyxl
 
-YUANGONGS =  ['刘革红', '黄康', '吴长江', '李城', '胡国华', '代朝威']
+YUANGONGS =  ['刘革红', '黄康', '吴长江', '李城', '胡国华', '代朝威','黄志桥']
 dic_columns = {'fapei':'项目','date': '日期',
  'chejian': '车间',
  'jian': '件数1',
