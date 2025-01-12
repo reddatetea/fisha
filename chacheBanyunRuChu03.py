@@ -30,7 +30,7 @@ def chuliRuChu(ruchu,fname,start_riqi,end_riqi):
     df = df.reset_index()
     df.columns = ['date','chejian','jian','gongzhong','people']
     df = df[df.people.isin(YUANGONGS)]
-    df.gongzhong = df.gongzhong.str.replace('\d+','',regex = True)
+    df.gongzhong = df.gongzhong.str.replace(r'\d+','',regex = True)
     data = []
     gp = df.groupby(['date','chejian','jian','gongzhong'])
     for k,v in gp:
@@ -42,8 +42,8 @@ def chuliRuChu(ruchu,fname,start_riqi,end_riqi):
     df6 = yuanbiao.assign(fapei = yuanbiao.gongzhong.str[:2],gongzhong1 = yuanbiao.gongzhong.str[2:])
     df6 = df6[[ 'fapei',
        'gongzhong1','people', 'jian2']]
-    pivot = pd.pivot_table(df6,index = ['fapei','gongzhong1','people'],aggfunc = sum)
-    pivot1 = pd.pivot_table(df6,index = 'people',columns = ['fapei','gongzhong1'],aggfunc = sum)
+    pivot = pd.pivot_table(df6,index = ['fapei','gongzhong1','people'],aggfunc = 'sum')
+    pivot1 = pd.pivot_table(df6,index = 'people',columns = ['fapei','gongzhong1'],aggfunc = 'sum')
     return yuanbiao,df6,pivot1
       
 
@@ -53,8 +53,8 @@ def chuliColumnName(df,dic_columns):
 
 
 def main():
-    start_riqi = pd.Timestamp(easygui.enterbox('请输入入库起始日期期间：格式为"2024-9-26"'))
-    end_riqi = pd.Timestamp(easygui.enterbox('请输入入库起始日期期间：格式为"2024-10-25"'))
+    start_riqi = pd.Timestamp(easygui.enterbox('请输入入库开始日期：格式为"2024-9-26"'))
+    end_riqi = pd.Timestamp(easygui.enterbox('请输入入库结束日期：格式为"2024-10-25"'))
     path = r"F:\a00nutstore\006\zw\产成品出入库工作记录"
     os.chdir(path)
     lst = os.listdir(path)
@@ -65,7 +65,7 @@ def main():
             yuanbiao_ruku, df_ruku, pivot_ruku = chuliRuChu(ruchu, fname, start_riqi, end_riqi)
             yuanbiao_ruku = chuliColumnName(yuanbiao_ruku, dic_columns)
             df_ruku = chuliColumnName(df_ruku, dic_columns)
-            pivot_ruku1 = pd.pivot_table(df_ruku, index='人员', columns=['项目', '工种1'], aggfunc=sum, margins=True,
+            pivot_ruku1 = pd.pivot_table(df_ruku, index='人员', columns=['项目', '工种1'], aggfunc='sum', margins=True,
                                          margins_name='小计')
 
         elif file == '仓库日常出库工作记录.xlsx':
@@ -76,7 +76,7 @@ def main():
             yuanbiao_chuku = yuanbiao_chuku.rename(columns={'车间': '客户'})
             df_chuku = chuliColumnName(df_chuku, dic_columns)
             df_chuku = df_chuku.rename(columns={'车间': '客户'})
-            pivot_chuku1 = pd.pivot_table(df_chuku, index='人员', columns=['项目', '工种1'], aggfunc=sum, margins=True,
+            pivot_chuku1 = pd.pivot_table(df_chuku, index='人员', columns=['项目', '工种1'], aggfunc='sum', margins=True,
                                           margins_name='小计')
         else:
             continue
@@ -84,7 +84,7 @@ def main():
     total = pd.concat([df_ruku, df_chuku])
     total = total.rename(columns={'fapei': '项目', 'gongzhong1': '工种', 'people': '人员', 'jian2': '件数'})
     # total = total.astype({'件数2': 'int'})
-    pivot = pd.pivot_table(total, index='人员', columns=['项目', '工种1'], aggfunc=sum, margins=True,
+    pivot = pd.pivot_table(total, index='人员', columns=['项目', '工种1'], aggfunc='sum', margins=True,
                            margins_name='小计')
 
     fname_result = os.path.join(path, '叉车搬运工时统计表.xlsx')
