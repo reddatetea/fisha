@@ -53,8 +53,8 @@ def chuliColumnName(df,dic_columns):
 
 
 def main():
-    start_riqi = pd.Timestamp(easygui.enterbox('请输入入库起始日期期间：格式为"2024-9-26"'))
-    end_riqi = pd.Timestamp(easygui.enterbox('请输入入库起始日期期间：格式为"2024-10-25"'))
+    start_riqi = pd.Timestamp(easygui.enterbox('请输入入库开始日期期间：格式为"2024-9-26"'))
+    end_riqi = pd.Timestamp(easygui.enterbox('请输入入库结束日期期间：格式为"2024-10-25"'))
     path = r"F:\a00nutstore\006\zw\产成品出入库工作记录"
     os.chdir(path)
     lst = os.listdir(path)
