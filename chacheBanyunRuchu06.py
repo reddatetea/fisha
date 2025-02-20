@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import openpyxl
 
-YUANGONGS =  ['刘革红', '黄康', '吴长江', '李城', '胡国华', '代朝威','黄志桥','周宗华']
+YUANGONGS =  ['刘革红', '黄康', '吴长江', '李城', '胡国华', '代朝威','黄志桥','周宗华','魏道和']
 dic_columns = {'fapei':'项目','date': '日期',
  'chejian': '车间',
 'customer':'客户',
@@ -23,7 +23,7 @@ dic_columns = {'fapei':'项目','date': '日期',
 gongzhongs  = ['发库叉车', '发库搬运', '配货叉车', '配货搬运','入库叉车','入库搬运']
 
 banyun_jianchen = {'吴':'吴长江','黄':'黄志桥','代':'代朝威','李':'李城'}
-chache_jianchen = {'刘':'刘革红','黄':'黄康','胡':'胡国华','周':'周宗华'}
+chache_jianchen = {'刘':'刘革红','黄':'黄康','胡':'胡国华','周':'周宗华','魏道和':'魏'}
 
 dic = dict(zip(['序号', '日期', '客户', '件数','车间'],
 ['xuhao', 'date', 'customer', 'jian','customer']))

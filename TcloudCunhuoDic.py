@@ -11,6 +11,7 @@ import pandas as pd
 import re
 import easygui
 import openpyxl
+import os
 
 def getCunhuoConcent(fname):
     pattern = r'(?P<num>\d+)本/件'
@@ -52,6 +53,7 @@ def main():
     os.chdir(path)
     content_dic = getCunhuoConcent(fname)
     fname_dic = getCunhuoConcentFile(path,content_dic)
+    print(content_dic)
     os.startfile(fname_dic)
     
     

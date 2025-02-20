@@ -195,11 +195,12 @@ def fillPrice(df0):
 def main():
     data = []
     caigous,pinmings,early_riqi =caigouLiushuizhang()
-    path = r'F:\a00nutstore\006\zw06\原材料实时流水账'
+    path = r'F:\a00nutstore\006\zw\原材料实时流水账'
     os.chdir(path)
     datas,riqi = getKucun(caigous,pinmings,early_riqi)
     filename0 = f'库存原材料分布{riqi}.xlsx'
     filename = f'库存原材料分布.xlsx'
+    fname = os.path.join(path,filename)
     sheet_name = '库存分配'
     df = pd.concat(datas)
     df = df[df['入库数量']!=0]
@@ -232,7 +233,8 @@ def main():
 
 
     df9['金额'] = np.where(df9['存货大类名称'].isin(zhis), df9['吨数'] * df9['吨价'], df9['金额'])
-    fname = chuliDf(df9,filename,sheet_name)
+
+    fname = chuliDf(df9,fname,sheet_name)
     # df8.to_excel(filename0, sheet_name, index=False)
     # df8.to_excel(filename,sheet_name,index=False)
     os.startfile(filename)
