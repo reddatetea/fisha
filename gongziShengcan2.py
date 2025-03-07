@@ -233,7 +233,7 @@ def shuxin(fname, chejian,sheet_name):
 
 
 def main():
-    fname_gongzi = r'F:\a00nutstore\008\zw08\gongzi\生产人员工资.xlsx'
+    fname_gongzi = r'F:\a00nutstore\008\zww08\gongzi\生产人员工资.xlsx'
     sheet_name_gz = '工资'
     path = easygui.diropenbox(msg='请点选“生产人员工资表所在路径”')
     os.chdir(path)

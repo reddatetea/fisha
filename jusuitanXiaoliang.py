@@ -4,6 +4,9 @@
 拼多多、京东、京东荣佳、阿里巴巴、淘宝、天猫、分销商、京东商城
 全平台（不包括分销部）
 
+切记：销售主题文件命名不要忘记加-
+
+
 '''
 
 import pandas as pd
@@ -75,7 +78,7 @@ lst1 = [ '商品编码',
 names = ['shangpinbianma','name','xiaoshouliang','xiaoshoue','xiaoshouchengben','maoli']
 dic = dict(zip(lst1,names))
 
-# fname = r"F:\a00nutstore\008\zw08\电商\聚水潭\各平台总销售.xlsx"
+# fname = r"F:\a00nutstore\008\zww08\电商\聚水潭\各平台总销售.xlsx"
 path = easygui.diropenbox('请点选聚水潭各平台销售所在文件夹')
 # os.chdir(path)
 # path = r'F:\a00nutstore\008\zw08\电商\聚水潭\202412'
@@ -178,7 +181,7 @@ df_zhong.insert(0,'期间',qijian)
 #是否附加到原始数据中
 isno = easygui.boolbox('是否将本期销售数据添加到原始数据中去')
 if isno:
-    fname = r"F:\a00nutstore\008\zw08\电商\聚水潭\聚水潭各平台总销售.xlsx"
+    fname = r"F:\a00nutstore\008\zww08\电商\聚水潭\聚水潭各平台总销售.xlsx"
     df = pd.read_excel(fname,sheet_name = '原始数据',dtype =  {'商品编码':str,'其它属性4':str})
     max_row = df.shape[0]
     with pd.ExcelWriter(fname, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:

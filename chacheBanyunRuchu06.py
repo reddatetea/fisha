@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import openpyxl
 
-YUANGONGS =  ['刘革红', '黄康', '吴长江', '李城', '胡国华', '代朝威','黄志桥','周宗华','魏道和']
+YUANGONGS =  ['刘革红', '黄康', '吴长江', '李城', '胡国华', '代朝威','黄志桥','周宗华','魏道和','临时工','向明瑞']
 dic_columns = {'fapei':'项目','date': '日期',
  'chejian': '车间',
 'customer':'客户',
@@ -22,7 +22,7 @@ dic_columns = {'fapei':'项目','date': '日期',
  'jian2': '件数2'}
 gongzhongs  = ['发库叉车', '发库搬运', '配货叉车', '配货搬运','入库叉车','入库搬运']
 
-banyun_jianchen = {'吴':'吴长江','黄':'黄志桥','代':'代朝威','李':'李城'}
+banyun_jianchen = {'吴':'吴长江','黄':'黄志桥','代':'代朝威','李':'李城','刘':'刘革红','邹':'周宗华','临':'临时工','向':'向明瑞'}
 chache_jianchen = {'刘':'刘革红','黄':'黄康','胡':'胡国华','周':'周宗华','魏道和':'魏'}
 
 dic = dict(zip(['序号', '日期', '客户', '件数','车间'],
@@ -74,18 +74,18 @@ def chuliColumnName(df,dic_columns):
     return df
 
 def main():
-    path = r"F:\a00nutstore\006\zw\产成品出入库工作记录"
+    path = r"F:\a00nutstore\006\zww\产成品出入库工作记录"
     start_riqi = pd.Timestamp(easygui.enterbox('请输入开始日期"2024-12-26"'))
     riqi = easygui.enterbox('请输入结束日期"2025-01-25"')
     end_riqi = pd.Timestamp(riqi)
     #ruku 出库
-    fname_chuku = r"F:\a00nutstore\006\zw\产成品出入库工作记录\仓库日常出库工作记录.xlsx"
+    fname_chuku = r"F:\a00nutstore\006\zww\产成品出入库工作记录\仓库日常出库工作记录.xlsx"
     yuanbiao_chuku, df_chuku, pivot_chuku = chuliRuChu(fname_chuku,start_riqi,end_riqi)
     df_chuku = chuliColumnName(df_chuku,dic_columns)
     pivot_chuku1 = pd.pivot_table(df_chuku, index='人员', columns=['项目', '工种1'], aggfunc='sum', margins=True,
                                            margins_name='小计')
     #ruku 入库
-    fname_ruku = r"F:\a00nutstore\006\zw\产成品出入库工作记录\仓库日常入库工作记录.xlsx"
+    fname_ruku = r"F:\a00nutstore\006\zww\产成品出入库工作记录\仓库日常入库工作记录.xlsx"
     yuanbiao_ruku, df_ruku, pivot_ruku = chuliRuChu(fname_ruku,start_riqi,end_riqi)
     df_ruku = chuliColumnName(df_ruku,dic_columns)
     pivot_ruku1 = pd.pivot_table(df_ruku, index='人员', columns=['项目', '工种1'], aggfunc='sum', margins=True,
