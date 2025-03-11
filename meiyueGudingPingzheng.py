@@ -45,7 +45,7 @@ expense_design = data['设计研发部']
 expense_sale = data['营销部']
 
 #每月固定凭证
-fname_fix = r"F:\a00nutstore\008\zw08\2024\每月固定凭证.xlsx"
+fname_fix = r"F:\a00nutstore\008\zww08\2024\每月固定凭证.xlsx"
 wb = openpyxl.load_workbook(fname_fix)
 ws = wb['pingzheng']
 #写入数据
