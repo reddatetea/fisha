@@ -6,8 +6,8 @@ import pandas as pd
 import easygui
 
 
-fname =r"F:\a00nutstore\008\zw08\gongzi\生产人员工资.xlsx"
-os.chdir(r'F:\a00nutstore\008\zw08\gongzi')
+fname =r"F:\a00nutstore\008\zww08\gongzi\生产人员工资.xlsx"
+os.chdir(r'F:\a00nutstore\008\zww08\gongzi')
 filter = easygui.enterbox('请输入员工姓名')
 df = pd.read_excel(fname,sheet_name = '工资')
 df = df.loc[df['姓名']==filter]

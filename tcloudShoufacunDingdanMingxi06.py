@@ -660,7 +660,7 @@ ws0 = wb0.active
 area0 = ws0['A1:H10']
 wb = openpyxl.load_workbook(fname_canchengpin)
 ws = wb['合计']
-wb.active = ws
+wb.active = wscon
 
 cell_start1 = ws['A1']
 formatPainter.stylesFormat(ws, area0, cell_start1)
