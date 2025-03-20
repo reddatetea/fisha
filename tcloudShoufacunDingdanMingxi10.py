@@ -481,6 +481,10 @@ if isno:
     fname_diaobo_AAA = easygui.fileopenbox(msg, title='AAA')
     df_diaobo_AAA, diaobo_pivot_AAA = diaobo(fname_diaobo_AAA)
     df1_diaobo = pd.merge(df1, diaobo_pivot_AAA, left_on='code', right_on='存货编码', how='outer')
+    df1_diaobo.code = df1_diaobo.code.fillna(df1_diaobo['存货编码'])     #2025-3-20
+    df1_diaobo.class02 = df1_diaobo.class02.fillna(method='ffill')
+    df1_diaobo.class05 = df1_diaobo.class05.fillna(method='ffill')
+    df1_diaobo.stock = df1_diaobo.stock.fillna(method='ffill')
     df1 = dfAdddiaobo(df1_diaobo)
 else:
     pass
@@ -491,6 +495,10 @@ if isno:
     fname_diaobo_BBB = easygui.fileopenbox(msg, title='BBB')
     df_diaobo_BBB, diaobo_pivot_BBB = diaobo(fname_diaobo_BBB)
     df2_diaobo = pd.merge(df2, diaobo_pivot_BBB, left_on='code', right_on='存货编码', how='outer')
+    df2_diaobo.code = df2_diaobo.code.fillna(df2_diaobo['存货编码'])  #2025-3-20
+    df2_diaobo.class02 = df2_diaobo.class02.fillna(method='ffill')
+    df2_diaobo.class05 = df2_diaobo.class05.fillna(method='ffill')
+    df2_diaobo.stock = df2_diaobo.stock.fillna(method='ffill')
     df2 = dfAdddiaobo(df2_diaobo)
 else :
     pass
