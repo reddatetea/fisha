@@ -49,7 +49,7 @@ df.insert(0,"期间",df['业务时间'].astype('str').str[:7])
 df.insert(0,'物流','申通')  
 df = df[~df['运单号'].isin(['None',''])]
 df['不含税运费'] = round(df['运费']/1.06,2)
-qijian = df.iloc[-1,1]
+qijian = df.iloc[0,1]
 
 
 #聚水潭主题快递分析\发货统计\按渠道\按店铺 \按日期\ 按仓库全选
@@ -113,7 +113,7 @@ else :
     pass     
 
 
-fname_duote_huizhong = r"F:\a00nutstore\008\zww08\电商\快递\多特运费申通中通汇总.xlsx"
+fname_duote_huizhong = r"F:\a00nutstore\008\zww08\002电商\电商快递运费\多特运费申通中通汇总.xlsx"
 isno = easygui.boolbox('是否将本期中通运费数据添加到多特运费汇总文件中')
 if isno:
     df_0 = pd.read_excel(fname_duote_huizhong,sheet_name = pingtai)
