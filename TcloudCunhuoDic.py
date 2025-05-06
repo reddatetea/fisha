@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[16]:
-
-
 '''
 计算Tcloud中存货档货中存货含量字典20240917
 '''
@@ -11,7 +5,11 @@ import pandas as pd
 import re
 import easygui
 import openpyxl
-import os
+import bianmabiaozhunhua06
+from bianmabiaozhunhua06 import chuliNumAfterHengGang,quShu,chuliFirstHenggang,bianmaBiaozhun 
+from bianmabiaozhunhua06 import huizhongXiaoshoubuDiaobojia,chuliXiaoshoubuDiaobojia
+
+
 
 def getCunhuoConcent(fname):
     pattern = r'(?P<num>\d+)本/件'
@@ -34,6 +32,35 @@ def getCunhuoConcent(fname):
     content_dic = dict(zip(df['存货编码'],df['计量单位1'] ))
     return content_dic
 
+
+def getBiaozhunBianmaConcent(fname):
+    pattern = r'(?P<num>\d+)本/件'
+    regex = re.compile(pattern)
+    df = pd.read_excel(fname,dtype = {'存货编码':'str'})
+    def addBen(string):
+        if string == '本':
+            string =0
+            return string
+        else :
+            mat = regex.search(string)
+            
+            if mat:
+                string = int(mat.group('num'))
+                return string
+            else :
+                string = 0
+                return string
+    df['计量单位1'] = df['计量单位'].map(addBen)            
+    
+    content_dic1 = dict(zip(df['存货编码'],df['计量单位1'] ))
+    df['code'] = df['存货编码']
+    df['code'] = df['code'].map(chuliFirstHenggang)
+    df['code'] = df['code'].map(bianmaBiaozhun)
+    content_dic2 = dict(zip(df['code'],df['计量单位1'] ))
+
+    content_dic1.update(content_dic2)
+    return content_dic1
+
 def getCunhuoConcentFile(path,content_dic):
     riqi = easygui.enterbox('请输入日期')
     dicfile = f'存货档案字典{riqi}.xlsx'
@@ -53,7 +80,6 @@ def main():
     os.chdir(path)
     content_dic = getCunhuoConcent(fname)
     fname_dic = getCunhuoConcentFile(path,content_dic)
-    print(content_dic)
     os.startfile(fname_dic)
     
     

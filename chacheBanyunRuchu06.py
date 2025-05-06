@@ -16,7 +16,7 @@ dic_columns = {'fapei':'项目','date': '日期',
  'jian2': '件数2'}
 gongzhongs  = ['发库叉车', '发库搬运', '配货叉车', '配货搬运','入库叉车','入库搬运']
 
-banyun_jianchen = {'吴':'吴长江','黄':'黄志桥','代':'代朝威','李':'李城','刘':'刘革红','邹':'周宗华','临':'临时工','向':'向明瑞','周':'周昌正','艾':'艾金华'}
+banyun_jianchen = {'吴':'吴长江','黄':'黄志桥','代':'代朝威','李':'李城','刘':'刘革红','邹':'周宗华','临':'临时工','向':'向明瑞','周':'周昌正','艾':'艾金华','工':'车间'}
 chache_jianchen = {'刘':'刘革红','黄':'黄康','胡':'胡国华','周':'周宗华','魏':'魏道和'}
 
 dic = dict(zip(['序号', '日期', '客户', '件数','车间'],
@@ -78,7 +78,8 @@ def main():
     df_chuku = chuliColumnName(df_chuku,dic_columns)
     pivot_chuku1 = pd.pivot_table(df_chuku, index='人员', columns=['项目', '工种1'], aggfunc='sum', margins=True,
                                            margins_name='小计')
-    #ruku 入库
+
+    #ruku 入库2025
     fname_ruku = r"F:\a00nutstore\006\zw\产成品出入库工作记录\仓库日常入库工作记录.xlsx"
     yuanbiao_ruku, df_ruku, pivot_ruku = chuliRuChu(fname_ruku,start_riqi,end_riqi)
     df_ruku = chuliColumnName(df_ruku,dic_columns)
