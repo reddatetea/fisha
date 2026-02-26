@@ -21,7 +21,7 @@ name_company = {'朱红志': '佳广',
  '周太云': '莱新',
  '李敏敏': '莱新',
  '周黎明': '莱新',
- '张文伟': '莱新',
+ '张文伟': '销售',  
  '杜松': '荣佳',
  '范莉': '荣佳',
  '刘会群': '物业',
@@ -115,7 +115,7 @@ def main():
         fname1 = r"F:\a00nutstore\008\zww08\gongzi\工资级别.xlsx"
         sheet_name1 = r'级别'
         df_jibie = pd.read_excel(fname1, sheet_name1, dtype={'账号': "str"})
-        dic_gongzi = dict(zip(df_jibie['账号'], zip(df_jibie['基本工资0'], df_jibie['考评基数0'], df_jibie['效益奖金0'])))
+        dic_gongzi = dict(zip(df_jibie['姓名'], zip(df_jibie['基本工资0'], df_jibie['考评基数0'], df_jibie['效益奖金0'])))
         return dic_gongzi
 
     for i in ['双佳','莱特']:
@@ -140,15 +140,15 @@ def main():
     # df['公司'] = df['姓名'].map(name_company)
     df = df.assign(公司 = df.apply(lambda x:peopleToNewCompany(x['姓名'],x['公司']),axis = 1))
     dic_jibie = getDicJibie()
-    df['基本工资0'] = df['账号'].map(lambda x:dic_jibie.get(x,(0,0,0))[0])
-    df['考评基数0'] = df['账号'].map(lambda x: dic_jibie.get(x, (0, 0, 0))[1])
-    df['效益奖金0'] = df['账号'].map(lambda x: dic_jibie.get(x, (0, 0, 0))[2])
+    df['基本工资0'] = df['姓名'].map(lambda x:dic_jibie.get(x,(0,0,0))[0])
+    df['考评基数0'] = df['姓名'].map(lambda x: dic_jibie.get(x, (0, 0, 0))[1])
+    df['效益奖金0'] = df['姓名'].map(lambda x: dic_jibie.get(x, (0, 0, 0))[2])
     # df['团休奖金0'] = round(df['考评基数0']*df['考核分数'],2)
     df['基本工资测试'] = df['基本工资0'] - df['基本工资']
     df['考评基数测试'] = df['考评基数0'] - df['考评基数']
     df['效益奖金测试'] = df['效益奖金0'] - df['效益奖金']
     df['考评基数0'] = df['考评基数0'].fillna(0)
-    df['考核分数'] = df['考核分数'].fillna(0)
+    df['考核分数'] = df['考核分数'].fillna(1)                     #2025-10-21 默认为1
     df['团体奖金0'] = round(df['考评基数0']*df['考核分数'],0)
     df['团体奖金测试'] = df['团体奖金0'] -df['团体奖金']
     with pd.ExcelWriter(fname_gongzi, engine='openpyxl', date_format='yyyy-m-d', mode='a',

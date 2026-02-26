@@ -183,15 +183,14 @@ def jiazi(fname, chejian,sheet_name):
              '代扣社保',
              '扣税',
              '补扣税',
-
+             # '借支',
              '实发数',
              '领款人签名',
-             '保底人员金额'
+              '保底人员金额'
              ]
 
     usecols = 'A:T'
     df = pd.read_excel(fname, sheet_name=sheet_name, names=names, usecols=usecols, skiprows=3)
-    df.insert(15, '借支', 0)
     df = chuliName(df, chejian)
     return df
 
@@ -274,9 +273,9 @@ def main():
             continue
     df = pd.concat([df_rouyin, df_shuxin, df_jiaoyin, df_jianzhuang, df_chengpin, df_jiazi])
     # df.to_excel(fname_gongzi,sheet_name = sheet_name_gz,index = False)
-    # with pd.ExcelWriter(fname_gongzi, engine='openpyxl', date_format='yyyy-m-d', mode='a',
-    #                     if_sheet_exists='replace') as writer:                       #replace,overlay
-    #     df.to_excel(writer, sheet_name_gz, index=False)             #replace,overlay
+    with pd.ExcelWriter(fname_gongzi, engine='openpyxl', date_format='yyyy-m-d', mode='a',
+                        if_sheet_exists='replace') as writer:                       #replace,overlay
+        df.to_excel(writer, sheet_name_gz, index=False)             #replace,overlay
     with pd.ExcelWriter(fname_gongzi, engine='openpyxl', date_format='yyyy-m-d', mode='a',
                         if_sheet_exists='replace') as writer:
         df.to_excel(writer, sheet_name_gz, index=False)             #replace,overlay
